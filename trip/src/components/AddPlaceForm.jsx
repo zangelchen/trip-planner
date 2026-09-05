@@ -8,6 +8,9 @@ export default function AddPlaceForm({ groupTitle, category, saving, onSave, onC
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [bullets, setBullets] = useState('');
+  const [when, setWhen] = useState('');
+  const [linkLabel, setLinkLabel] = useState('');
+  const [linkUrl, setLinkUrl] = useState('');
   const [location, setLocation] = useState('');
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [lookupStatus, setLookupStatus] = useState('idle');
@@ -27,6 +30,8 @@ export default function AddPlaceForm({ groupTitle, category, saving, onSave, onC
       title: title.trim(),
       description: description.trim(),
       bullets,
+      when: when.trim(),
+      link: linkUrl.trim() ? { label: linkLabel.trim() || 'More info', href: linkUrl.trim() } : null,
       location: resolvedLocation?.label || location.trim(),
       coordinates: resolvedLocation ? { lat: resolvedLocation.lat, lng: resolvedLocation.lng } : null,
     });
@@ -58,6 +63,22 @@ export default function AddPlaceForm({ groupTitle, category, saving, onSave, onC
         <span>Optional bullets</span>
         <textarea value={bullets} placeholder={'One note per line\nBest time to go\nWhat to order'} onChange={(event) => setBullets(event.target.value)} />
       </label>
+
+      <label className="form-group">
+        <span>When <em>(optional)</em></span>
+        <input value={when} placeholder="e.g., Sept 14–16, opens 8pm" onChange={(event) => setWhen(event.target.value)} />
+      </label>
+
+      <div className="form-row">
+        <label className="form-group">
+          <span>Link label <em>(optional)</em></span>
+          <input value={linkLabel} placeholder="Tickets" onChange={(event) => setLinkLabel(event.target.value)} />
+        </label>
+        <label className="form-group">
+          <span>Link URL <em>(optional)</em></span>
+          <input value={linkUrl} placeholder="https://…" inputMode="url" onChange={(event) => setLinkUrl(event.target.value)} />
+        </label>
+      </div>
 
       <LocationAutocomplete
         label="Location"

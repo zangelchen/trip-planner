@@ -1,8 +1,8 @@
 import { useMemo, useState } from 'react';
-import { Check, ChevronRight, Clock, ExternalLink, MapPin, Navigation, Pencil, Plus, Trash2, Users } from 'lucide-react';
+import { CalendarDays, Check, ChevronRight, Circle, Clock, ExternalLink, MapPin, Navigation, Pencil, Plus, Star, Trash2, Users } from 'lucide-react';
 import AddPlaceForm from './AddPlaceForm.jsx';
 import { googleMapsSearchUrl } from '../geo.js';
-import { categorizeGroup } from '../places.js';
+import { categorizeGroup, collectMarked, interestOf, nextInterest, sortByInterest } from '../places.js';
 import { makeId } from '../storage/storage.js';
 import { CategoryIcon, categoryTone, iconStroke } from './uiIcons.jsx';
 
@@ -10,6 +10,7 @@ export default function GuideView({ trip, sections, filters, modeSwitch, onUpdat
   const [editMode, setEditMode] = useState(false);
   const [addingTo, setAddingTo] = useState(null);
   const [saving, setSaving] = useState(false);
+  const [markedOnly, setMarkedOnly] = useState(false);
   const guideSections = sections || trip.guideSections;
   const canEdit = Boolean(onUpdateTrip);
   const firstEditableTarget = useMemo(() => {
@@ -40,7 +41,8 @@ export default function GuideView({ trip, sections, filters, modeSwitch, onUpdat
             title: draft.title,
             paragraphs: draft.description ? [draft.description] : [],
             bullets: draft.bullets.split('\n').map((line) => line.trim()).filter(Boolean),
-            links: [],
+            links: draft.link && /^https?:\/\//i.test(draft.link.href) ? [draft.link] : [],
+            when: draft.when || '',
             location: draft.location || '',
             coordinates: draft.coordinates || null,
           };
@@ -50,6 +52,27 @@ export default function GuideView({ trip, sections, filters, modeSwitch, onUpdat
     });
     await persistGuideSections(nextSections);
     setAddingTo(null);
+  }
+
+  async function setInterest(sectionId, groupId, cardId, level) {
+    const nextSections = trip.guideSections.map((section) => {
+      if (section.id !== sectionId) return section;
+      return {
+        ...section,
+        groups: section.groups.map((group) => {
+          if (group.id !== groupId) return group;
+          return {
+            ...group,
+            cards: group.cards.map((card) => {
+              if (card.id !== cardId) return card;
+              const { interest: _previous, ...rest } = card;
+              return level ? { ...rest, interest: level } : rest;
+            }),
+          };
+        }),
+      };
+    });
+    await persistGuideSections(nextSections);
   }
 
   async function removePlace(sectionId, groupId, cardId) {
@@ -102,12 +125,18 @@ export default function GuideView({ trip, sections, filters, modeSwitch, onUpdat
       {modeSwitch}
       {filters}
 
+      <Shortlist trip={trip} markedOnly={markedOnly} onMarkedOnly={setMarkedOnly} />
+
       {guideSections.map((section) => (
         <section className="guide-section" id={section.id} key={section.id}>
           <h2>{section.title}</h2>
           {section.groups.map((group) => {
             const category = categorizeGroup(group.title);
             const isAdding = addingTo?.sectionId === section.id && addingTo?.groupId === group.id;
+            const ordered = sortByInterest(group.cards);
+            const visibleCards = markedOnly ? ordered.filter((card) => interestOf(card)) : ordered;
+            if (markedOnly && visibleCards.length === 0) return null;
+
             return (
               <div className="guide-group" key={group.id}>
                 <div className="section-header">
@@ -131,15 +160,18 @@ export default function GuideView({ trip, sections, filters, modeSwitch, onUpdat
                   />
                 )}
                 <div className="card-grid">
-                  {group.cards.map((card) => (
+                  {visibleCards.map((card) => (
                     <PlaceCard
                       key={card.id}
                       card={card}
                       category={category}
                       editMode={editMode}
+                      canMark={canEdit}
                       onDelete={() => removePlace(section.id, group.id, card.id)}
+                      onCycleInterest={() => setInterest(section.id, group.id, card.id, nextInterest(card.interest))}
                     />
                   ))}
+                  {visibleCards.length === 0 && <p className="empty-inline">Nothing marked in this group yet.</p>}
                 </div>
               </div>
             );
@@ -179,13 +211,59 @@ export default function GuideView({ trip, sections, filters, modeSwitch, onUpdat
   );
 }
 
-export function PlaceCard({ card, category, editMode = false, onDelete }) {
+// Sits above the sections so anything marked Must-do is reachable from the top
+// of the tab instead of being buried inside whichever section it belongs to.
+function Shortlist({ trip, markedOnly, onMarkedOnly }) {
+  const marked = collectMarked(trip);
+  const musts = marked.filter((entry) => entry.card.interest === 'must');
+  if (marked.length === 0) return null;
+
+  return (
+    <section className="shortlist">
+      <div className="shortlist__header">
+        <h2>
+          <Star size={16} strokeWidth={iconStroke} aria-hidden="true" />
+          Shortlist
+        </h2>
+        <button
+          type="button"
+          className={`chip ${markedOnly ? 'chip--active' : ''}`}
+          onClick={() => onMarkedOnly(!markedOnly)}
+          aria-pressed={markedOnly}
+        >
+          {markedOnly ? 'Showing marked only' : `Marked only (${marked.length})`}
+        </button>
+      </div>
+
+      {musts.length > 0 ? (
+        <ul className="shortlist__list">
+          {musts.map(({ card, sectionTitle }) => (
+            <li key={card.id}>
+              <a href={`#${card.id}`}>
+                <span>
+                  <strong>{card.title}</strong>
+                  <small>{sectionTitle}</small>
+                </span>
+                <ChevronRight size={16} strokeWidth={iconStroke} aria-hidden="true" />
+              </a>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="shortlist__empty">{marked.length} marked as interested. Tap a card&rsquo;s mark again to promote it to Must-do and it will show up here.</p>
+      )}
+    </section>
+  );
+}
+
+export function PlaceCard({ card, category, editMode = false, canMark = false, onDelete, onCycleInterest }) {
   const mapsUrl = googleMapsSearchUrl(card.coordinates || {});
   const paragraphs = card.paragraphs || [];
   const bullets = card.bullets || [];
+  const interest = interestOf(card);
 
   return (
-    <article className={`place-card ${editMode ? 'editing' : ''}`} id={card.id}>
+    <article className={`place-card ${editMode ? 'editing' : ''} ${interest ? `place-card--${card.interest}` : ''}`} id={card.id}>
       <div className={`category-tile category-tile--${categoryTone(category)}`} aria-hidden="true">
         <CategoryIcon category={category} size={20} />
       </div>
@@ -200,6 +278,7 @@ export function PlaceCard({ card, category, editMode = false, onDelete }) {
             <ChevronRight size={18} strokeWidth={iconStroke} className="place-card__chevron" aria-hidden="true" />
           )}
         </div>
+        {card.when && <p className="location-line"><CalendarDays size={14} strokeWidth={iconStroke} aria-hidden="true" />{card.when}</p>}
         {card.location && <p className="location-line"><MapPin size={14} strokeWidth={iconStroke} aria-hidden="true" />{card.location}</p>}
         {paragraphs.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
         {bullets.length > 0 && (
@@ -211,6 +290,20 @@ export function PlaceCard({ card, category, editMode = false, onDelete }) {
           {card.links?.map((link) => <a className="maps-link" key={link.href} href={link.href} target="_blank" rel="noreferrer"><ExternalLink size={14} strokeWidth={iconStroke} />{link.label}</a>)}
           {mapsUrl && <a className="maps-link" href={mapsUrl} target="_blank" rel="noreferrer"><Navigation size={14} strokeWidth={iconStroke} />Open in Google Maps</a>}
         </div>
+
+        {canMark && (
+          <button
+            type="button"
+            className={`interest-button ${interest ? `interest-button--${card.interest}` : ''}`}
+            onClick={onCycleInterest}
+            aria-label={interest ? `${card.title} is marked ${interest.label}. Change.` : `Mark ${card.title}`}
+          >
+            {card.interest === 'must'
+              ? <Star size={14} strokeWidth={iconStroke} fill="currentColor" aria-hidden="true" />
+              : <Circle size={14} strokeWidth={iconStroke} aria-hidden="true" />}
+            {interest ? interest.short : 'Mark'}
+          </button>
+        )}
       </div>
     </article>
   );

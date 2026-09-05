@@ -9,6 +9,47 @@ export const CATEGORIES = [
   { id: 'activity', colorVar: '--color-cat-tour', label: 'Tours', match: /activit|tour|class|tasting|safari|photo|yoga|horse|climb|ferrata|cook|jeep|4x4|wine|raki|catamaran|excursion/i },
 ];
 
+// How keen we are on a card. Cards without a level are simply unmarked — the
+// absence of a mark is not a "no", so nothing is ever hidden or reordered away.
+export const INTEREST_LEVELS = [
+  { id: 'must', label: 'Must-do', short: 'Must-do', rank: 0 },
+  { id: 'maybe', label: 'Interested', short: 'Interested', rank: 1 },
+];
+
+export const UNMARKED_RANK = 2;
+
+export function interestOf(card) {
+  const level = INTEREST_LEVELS.find((item) => item.id === card?.interest);
+  return level || null;
+}
+
+// Cycle unmarked → Interested → Must-do → unmarked, so one control covers all
+// three states and the button's label always says where you are.
+export function nextInterest(current) {
+  if (current === 'maybe') return 'must';
+  if (current === 'must') return '';
+  return 'maybe';
+}
+
+// Marked cards rise within their own group; ties keep their authored order so
+// the guide never shuffles unpredictably underneath you.
+export function sortByInterest(cards) {
+  return cards
+    .map((card, index) => ({ card, index, rank: interestOf(card)?.rank ?? UNMARKED_RANK }))
+    .sort((a, b) => a.rank - b.rank || a.index - b.index)
+    .map((entry) => entry.card);
+}
+
+export function collectMarked(trip, level) {
+  return (trip.guideSections || []).flatMap((section) =>
+    (section.groups || []).flatMap((group) =>
+      (group.cards || [])
+        .filter((card) => (level ? card.interest === level : Boolean(interestOf(card))))
+        .map((card) => ({ card, sectionTitle: section.title, groupTitle: group.title }))
+    )
+  );
+}
+
 export const DEFAULT_CATEGORY = { id: 'other', colorVar: '--color-cat-history', label: 'Other' };
 
 export function categorizeGroup(title) {

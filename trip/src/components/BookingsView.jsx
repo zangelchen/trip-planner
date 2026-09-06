@@ -37,7 +37,7 @@ export default function BookingsView({ trip, storage }) {
   async function saveBooking(booking) {
     setSaving(true);
     try {
-      const saved = await storage.saveBooking(trip.id, booking);
+      const saved = await storage.upsertBooking(trip.id, booking);
       setBookings((current) => current.map((item) => (item.id === saved.id ? saved : item)));
     } finally {
       setSaving(false);
@@ -47,7 +47,7 @@ export default function BookingsView({ trip, storage }) {
   async function addBooking(event) {
     event.preventDefault();
     if (!draft.name.trim()) return;
-    const saved = await storage.saveBooking(trip.id, { ...draft, id: makeId() });
+    const saved = await storage.upsertBooking(trip.id, { ...draft, id: makeId() });
     setBookings((current) => [saved, ...current]);
     setDraft(emptyBooking);
     setShowForm(false);

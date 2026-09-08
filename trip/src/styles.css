@@ -1460,3 +1460,23 @@
     .form-row { grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); }
   }
 }
+
+@layer components {
+  .booking-field--long { align-items: start; }
+  .booking-field--long .booking-value { white-space: pre-wrap; text-align: left; line-height: 1.5; }
+  .booking-field textarea {
+    width: 100%;
+    min-height: 96px;
+    padding: 10px 12px;
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+    color: var(--color-text-1);
+    font: inherit;
+    font-size: var(--text-sm);
+    line-height: 1.5;
+    resize: vertical;
+  }
+  .booking-value a { display: inline-flex; align-items: center; gap: 4px; color: var(--color-primary); font-weight: 600; text-decoration: none; }
+  .booking-value a:hover { text-decoration: underline; }
+}

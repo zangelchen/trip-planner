@@ -6,6 +6,16 @@ import { CategoryIcon, categoryTone, iconStroke } from './uiIcons.jsx';
 
 const choiceKey = (tripId) => `trip-planner:v1:itinerary-choice:${tripId}`;
 
+// An option carrying a BOOKED availability is the standing answer for its day,
+// so the strip and the cards reflect the booking until someone picks otherwise.
+function bookedOptionId(day) {
+  return day.options?.find((option) => /^BOOKED/i.test(option.availability || ''))?.id || null;
+}
+
+function effectiveChoice(day, choices) {
+  return choices[day.id] || bookedOptionId(day) || null;
+}
+
 // Choices are a { [dayId]: optionId } map. Older builds stored a bare option id
 // for the single Crete options day, so migrate that shape on read.
 function readChoices(tripId) {
@@ -134,7 +144,7 @@ export default function ItineraryView({ trip, onUpdateTrip }) {
 
           <div className="itinerary-timeline">
             {leg.days.map((day) => (
-              <DayBlock key={day.id} day={day} choice={choices[day.id]} onChoose={(optionId) => chooseOption(day.id, optionId)} />
+              <DayBlock key={day.id} day={day} choice={effectiveChoice(day, choices)} onChoose={(optionId) => chooseOption(day.id, optionId)} />
             ))}
           </div>
 
@@ -163,7 +173,7 @@ function RouteStrip({ leg, choices, showLabel }) {
       <ol className="route-strip" aria-label={`${leg.label} route summary`}>
         {leg.days.map((day) => {
           const isChoice = Boolean(day.options?.length);
-          const picked = isChoice ? day.options.find((option) => option.id === choices[day.id]) : null;
+          const picked = isChoice ? day.options.find((option) => option.id === effectiveChoice(day, choices)) : null;
           return (
             <li key={day.id} className={`route-strip__step ${isChoice ? 'is-choice' : ''} ${isChoice && !picked ? 'is-unset' : ''}`}>
               <span className="route-strip__date">{day.date.replace(/^\w+ /, '')}</span>
@@ -192,7 +202,11 @@ function DayBlock({ day, choice, onChoose }) {
           <span className="itin-day__date">{day.date}</span>
           <h3>{day.title}</h3>
           {day.pace && <span className={`itin-pace itin-pace--${day.paceTone || 'easy'}`}>{day.pace}</span>}
-          {isOptionDay && <span className="itin-choice-chip">{day.options.length} options</span>}
+          {isOptionDay && (
+            <span className="itin-choice-chip">
+              {bookedOptionId(day) ? `${day.options.length} considered` : `${day.options.length} options`}
+            </span>
+          )}
         </div>
         <p className="itin-day__summary">{day.summary}</p>
 

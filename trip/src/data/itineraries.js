@@ -8,7 +8,7 @@
 export const itineraries = {
   'greece-crete-athens-2026': {
     title: 'Proposed Itinerary',
-    subtitle: 'Crete Sept 9–13, Athens Sept 13–17. Every day is settled except two: Sept 12 in Crete and Sept 16 in Athens.',
+    subtitle: 'Crete Sept 9–13, Athens Sept 13–17. Samaria, the Crete 4x4 day, the Acropolis tour and Delphi are all booked — every day now has its anchor.',
     legs: [
       {
         id: 'crete',
@@ -19,7 +19,7 @@ export const itineraries = {
         days: [
           {
             id: 'sep-9',
-            date: 'Tue Sept 9',
+            date: 'Wed Sept 9',
             title: 'Chania Old Town',
             category: 'town',
             summary: 'Arrival day taken slow: Venetian harbor, the old town lanes, dinner out, no fixed schedule.',
@@ -34,7 +34,7 @@ export const itineraries = {
           },
           {
             id: 'sep-10',
-            date: 'Wed Sept 10',
+            date: 'Thu Sept 10',
             title: 'Samaria Gorge',
             category: 'nature',
             summary: 'The big hike. Early start, 16 km downhill through the gorge, ferry + bus loop back.',
@@ -42,7 +42,7 @@ export const itineraries = {
               'Leave 5:30–6:00am; gorge entrance at Xyloskalo (Omalos) opens 7:00am',
               '16 km, 5–7 hours descending to Agia Roumeli — no road out, the boat is the only exit',
               'Ferry Agia Roumeli → Chora Sfakion (or Sougia), then bus back to Chania',
-              'Book the ferry/bus combo or an organized transfer so the car is not stranded at Omalos',
+              'BOOKED (GYG48YH2NQ7A, Platanos Tours): pickup 06:00 from SUNNY RENT A CAR on the main road — be there 10 min early. Bus is ELAFONISSOS TRAVEL.',
             ],
             drives: [
               { from: 'Chania', to: 'Xyloskalo / Omalos (trailhead)', time: '45–60 min', distance: '42 km', note: 'Mountain switchbacks the last 20 min.' },
@@ -52,7 +52,7 @@ export const itineraries = {
           },
           {
             id: 'sep-11',
-            date: 'Thu Sept 11',
+            date: 'Fri Sept 11',
             title: 'Elafonisi + Kedrodasos, then Elos',
             category: 'water',
             summary: 'Pink-sand lagoon early, the wild cedar beach next door, chestnut-village lunch on the way home.',
@@ -70,10 +70,11 @@ export const itineraries = {
           },
           {
             id: 'sep-12',
-            date: 'Fri Sept 12',
-            title: 'Pick one',
+            date: 'Sat Sept 12',
+            title: 'Countryside 4x4 (booked)',
             category: 'activity',
-            summary: 'The one open day. Four bookable options — beach-boat, catamaran, countryside culture, or an art workshop.',
+            summary: 'Settled: the 4x4 farm/cooking day is booked (GYG48YHRFRYV). The other three options are kept below as the record of what was weighed.',
+            lean: 'Booked pickup is Parking Port P1, Leoforos Nearchou, HERAKLION — about 2 h 40 from Chania, not a Chania pickup. Confirm with the operator when they call to arrange the time, or this day does not work from a Chania base.',
             options: [
               {
                 id: 'countryside-4x4',
@@ -84,13 +85,17 @@ export const itineraries = {
                 bullets: [
                   'Guided 4x4 through inland villages and olive/vineyard country',
                   'Cooking lesson + long lunch with the host family',
-                  'Hotel pickup — nobody has to drive the dirt roads',
+                  'Pottery session and a farm visit alongside the cooking',
                 ],
                 drives: [
-                  { from: 'Chania', to: 'Pickup point', time: '0–20 min', distance: '—', note: 'Hotel/area pickup included; no self-drive.' },
+                  { from: 'Chania', to: 'Parking Port P1, Heraklion (booked pickup)', time: '2 h 30 – 2 h 45', distance: '145 km', note: 'The voucher names a Heraklion pickup, not Chania. An 8:00 AM start there means leaving Chania around 5:15 AM.' },
                 ],
                 link: { label: 'GetYourGuide — sightseeing + cooking lesson', url: 'https://www.getyourguide.com/crete-l404/crete-sightseeing-day-trip-with-cooking-lesson-and-lunch-t412361/' },
-                availability: 'Plenty of dates available',
+                availability: 'BOOKED · ref GYG48YHRFRYV · Sat Sept 12, 8:00 AM',
+                notes: [
+                  'Pickup: Parking Port P1, Leoforos Nearchou, Heraklion — the operator calls within 48 h to arrange the exact time.',
+                  'Be waiting 15 min before the scheduled pickup; drivers wait no longer than 10 min. Drop-off is at the same place.',
+                ],
               },
               {
                 id: 'balos-gramvousa',
@@ -147,7 +152,7 @@ export const itineraries = {
           },
           {
             id: 'sep-13',
-            date: 'Sat Sept 13',
+            date: 'Sun Sept 13',
             title: 'Vamos, then onward',
             category: 'town',
             summary: 'Slow last morning in the restored stone village of Vamos before the flight to Athens.',
@@ -168,11 +173,11 @@ export const itineraries = {
         label: 'Athens',
         title: 'Athens — Sept 13–17',
         base: 'Base: central Athens (Monastiraki / Plaka side)',
-        note: 'One main thing each morning, then the rest of the day stays deliberately loose. Roughly half of the waking hours are unscheduled on purpose.',
+        note: 'One main thing each morning, then the rest of the day stays deliberately loose. Sept 17 is a morning flight, so Sept 14–16 carry everything — the Pangrati afternoon that used to close the trip is now a side option on a free day.',
         days: [
           {
             id: 'ath-sep-13',
-            date: 'Sat Sept 13',
+            date: 'Sun Sept 13',
             title: 'Arrival + first taste of Athens',
             category: 'town',
             pace: 'Very easy',
@@ -200,7 +205,7 @@ export const itineraries = {
           },
           {
             id: 'ath-sep-14',
-            date: 'Sun Sept 14',
+            date: 'Mon Sept 14',
             title: 'Acropolis + mythology',
             category: 'history',
             pace: 'Moderate',
@@ -210,6 +215,7 @@ export const itineraries = {
               {
                 label: 'Morning / early afternoon',
                 items: [
+                  'BOOKED guided tour (ref BR-1445349901), 07:50 start — note the booking is WITHOUT entry tickets, so Acropolis admission still needs buying separately',
                   'Acropolis at opening — Parthenon, Erechtheion / Caryatids, Temple of Athena Nike',
                   'Theatre of Dionysus on the way down',
                   'Acropolis Museum, then lunch nearby',
@@ -221,6 +227,7 @@ export const itineraries = {
                   'Anafiotika: tiny whitewashed lanes right under the Acropolis',
                   'Plaka for the historic streets, Koukaki for the neighborhood cafés',
                   'Optional Philopappos Hill at sunset',
+                  'Or take the slow Pangrati afternoon listed under Sept 15 — either free day works for it',
                   'If a café is good, stay in it an hour instead — that counts as the plan',
                 ],
               },
@@ -233,7 +240,7 @@ export const itineraries = {
           },
           {
             id: 'ath-sep-15',
-            date: 'Mon Sept 15',
+            date: 'Tue Sept 15',
             title: 'Markets + ancient Athens',
             category: 'town',
             pace: 'Moderate',
@@ -256,6 +263,16 @@ export const itineraries = {
                   'Or go back to the hotel and nap. A good day to do nothing productive.',
                 ],
               },
+              {
+                label: 'Side option — a slow Pangrati afternoon',
+                items: [
+                  'Pangrati was the old Sept 17 plan; the morning flight killed that day, so it lives here or on Sept 14 instead',
+                  'Breakfast or late coffee, then wander Archelaou and Platia Proskopon',
+                  'A second coffee somewhere else, then drift toward Varnava Square',
+                  'A long lunch is the point of it — this is the sit-still afternoon, not a sightseeing one',
+                  'Panathenaic Stadium is nearby if energy allows — strictly optional',
+                ],
+              },
             ],
             travelTitle: 'Getting around',
             drives: [
@@ -265,13 +282,13 @@ export const itineraries = {
           },
           {
             id: 'ath-sep-16',
-            date: 'Tue Sept 16',
-            title: 'Pick one',
+            date: 'Wed Sept 16',
+            title: 'Delphi (booked)',
             category: 'activity',
             pace: 'Full day',
             paceTone: 'full',
-            summary: 'The Athens decision day: the big mythology site, or another easy island day. Either way, dinner back in Athens is the only evening plan.',
-            lean: 'Current lean — Delphi 55% / Aegina 45%. Delphi adds variety since Crete already gave us beaches and island life. If travel fatigue has set in by Sept 15, switch to Aegina without guilt.',
+            summary: 'Settled: Delphi is booked (GYGN6BXK7XF2), meeting at Athanasiou Diakou 26 by 8:00 AM. Aegina is kept below as the record of the alternative.',
+            lean: 'The lean was Delphi 55 / Aegina 45 and the booking made it final. Arrive 15 minutes before the slot or the time is forfeited.',
             options: [
               {
                 id: 'delphi',
@@ -290,6 +307,12 @@ export const itineraries = {
                   { from: 'Delphi', to: 'Athens', time: '2 h 30 – 3 h', distance: '180 km', note: 'Back in Athens early evening — keep dinner easy and close.' },
                 ],
                 bestFor: 'Mythology, ancient Greek religion, mountain scenery, maximum contrast with Crete.',
+                availability: 'BOOKED · ref GYGN6BXK7XF2 · arrive by 8:00 AM',
+                notes: [
+                  'Meeting point: Athanasiou Diakou 26, Athina 117 43 — arrive 15 min early to keep the time slot.',
+                  'The activity ends back at the same meeting point.',
+                  'The confirmation did not state a date; it is filed here on Sept 16 — worth confirming against the voucher.',
+                ],
               },
               {
                 id: 'aegina',
@@ -312,38 +335,27 @@ export const itineraries = {
           },
           {
             id: 'ath-sep-17',
-            date: 'Wed Sept 17',
-            title: 'Lazy final day in Pangrati',
-            category: 'dining',
+            date: 'Thu Sept 17',
+            title: 'Fly home',
+            category: 'town',
             pace: 'Very easy',
             paceTone: 'easy',
-            summary: 'Protected on purpose: no leftover sightseeing, just one neighborhood, slowly, then the flight.',
+            summary: 'Morning flight, so this is a travel morning rather than a day in Athens. Everything worth doing has to happen on Sept 14–16.',
             blocks: [
               {
-                label: 'Morning / early afternoon',
+                label: 'Morning — the exit',
                 items: [
-                  'Sleep in, then head to Pangrati',
-                  '10:00 breakfast / coffee, wander Archelaou and Platia Proskopon',
-                  'Second coffee somewhere else, wander toward Varnava Square',
-                  '13:00–14:00 long lunch',
-                  'Panathenaic Stadium is nearby if energy allows — strictly optional',
-                ],
-              },
-              {
-                label: 'Afternoon — the exit',
-                items: [
-                  '14:30–15:30 final café. Sit for an hour: journal, people-watch, go through the photos.',
-                  '15:30–16:00 back to the hotel for the bags',
-                  '16:15–16:30 leave central Athens for the airport',
-                  '19:00 flight',
+                  'Bags packed the night before; nothing scheduled that can overrun',
+                  'Leave central Athens about 3 h before the flight — metro to the airport takes 40 min and the airport bag drop is slow at peak',
+                  'Coffee and something to eat at the airport rather than trying to squeeze in one last neighborhood',
                 ],
               },
             ],
             travelTitle: 'Getting around',
             drives: [
-              { from: 'Central Athens', to: 'Pangrati', time: '20–25 min walk / 10 min taxi', distance: '2 km' },
-              { from: 'Central Athens', to: 'Athens airport (ATH)', time: '40 min metro / 35–50 min taxi', distance: '33 km', note: 'Leaving by 16:30 gives roughly a 2 h buffer for the 19:00 flight.' },
+              { from: 'Central Athens', to: 'Athens airport (ATH)', time: '40 min metro / 35–50 min taxi', distance: '33 km', note: 'Metro Line 3 from Syntagma or Monastiraki runs every 30 min and is the reliable option at rush hour.' },
             ],
+            notes: ['If the flight is early enough that the metro has not started, pre-book a taxi the night before — the first airport train is around 6:30 am.'],
           },
         ],
         pool: {

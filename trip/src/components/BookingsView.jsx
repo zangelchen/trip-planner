@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { CalendarDays, ExternalLink, Phone, Plus, RefreshCw, Trash2 } from 'lucide-react';
+import { CalendarDays, ExternalLink, Phone, Plus, RefreshCw, StickyNote, Trash2 } from 'lucide-react';
 import { googleMapsSearchUrl } from '../geo.js';
 import { makeId } from '../storage/storage.js';
 import LocationAutocomplete from './LocationAutocomplete.jsx';
@@ -11,9 +11,15 @@ const fields = [
   ['confirmation', 'Confirmation #'],
   ['phone', 'Phone'],
   ['address', 'Address'],
+  ['link', 'Booking link'],
+  ['notes', 'Notes'],
 ];
 
-const emptyBooking = { name: '', checkin: '', checkout: '', confirmation: '', phone: '', address: '', lat: null, lng: null };
+// Confirmation emails carry pickup points, meeting times and PINs that belong
+// with the booking; notes is multi-line so none of that has to be discarded.
+const multilineFields = new Set(['notes']);
+
+const emptyBooking = { name: '', checkin: '', checkout: '', confirmation: '', phone: '', address: '', link: '', notes: '', lat: null, lng: null };
 
 export default function BookingsView({ trip, storage }) {
   const [bookings, setBookings] = useState([]);
@@ -84,6 +90,8 @@ export default function BookingsView({ trip, storage }) {
           <BookingInput label="Check-out (if applicable)" value={draft.checkout} placeholder="e.g., Thu, Sep 17 at 11:00 AM" onChange={(checkout) => setDraft({ ...draft, checkout })} />
           <BookingInput label="Confirmation #" value={draft.confirmation} placeholder="e.g., ABC123XYZ" onChange={(confirmation) => setDraft({ ...draft, confirmation })} />
           <BookingInput label="Phone Number" value={draft.phone} placeholder="e.g., +30 694 3639427" onChange={(phone) => setDraft({ ...draft, phone })} />
+          <BookingInput label="Booking link" value={draft.link} placeholder="https://…" onChange={(link) => setDraft({ ...draft, link })} />
+          <BookingInput label="Notes" value={draft.notes} multiline placeholder={'Pickup point, meeting time, PIN, what is included'} onChange={(notes) => setDraft({ ...draft, notes })} />
           <LocationAutocomplete
             label="Address / Location"
             value={draft.address}
@@ -149,11 +157,13 @@ export default function BookingsView({ trip, storage }) {
   );
 }
 
-function BookingInput({ label, value, placeholder, onChange }) {
+function BookingInput({ label, value, placeholder, onChange, multiline = false }) {
   return (
     <label className="form-group">
       <span>{label}</span>
-      <input value={value} placeholder={placeholder} onChange={(event) => onChange(event.target.value)} />
+      {multiline
+        ? <textarea rows={4} value={value} placeholder={placeholder} onChange={(event) => onChange(event.target.value)} />
+        : <input value={value} placeholder={placeholder} onChange={(event) => onChange(event.target.value)} />}
     </label>
   );
 }
@@ -204,7 +214,9 @@ function BookingField({ field, booking, label, value, editing, onEdit, onCancel,
       <div className="booking-field editing">
         <div className="booking-label">{label}</div>
         <form onSubmit={(event) => { event.preventDefault(); onSave({ [field]: draft }); }}>
-          <input autoFocus value={draft} onChange={(event) => setDraft(event.target.value)} />
+          {multilineFields.has(field)
+            ? <textarea autoFocus rows={5} value={draft} onChange={(event) => setDraft(event.target.value)} />
+            : <input autoFocus value={draft} onChange={(event) => setDraft(event.target.value)} />}
           <button type="submit">Save</button>
           <button type="button" onClick={onCancel}>Cancel</button>
         </form>
@@ -212,12 +224,27 @@ function BookingField({ field, booking, label, value, editing, onEdit, onCancel,
     );
   }
 
+  const isLink = field === 'link' && /^https?:\/\//i.test(value);
+
   return (
-    <button className="booking-field" type="button" onClick={onEdit}>
-      <span className="booking-label">{field === 'phone' ? <Phone size={14} strokeWidth={iconStroke} aria-hidden="true" /> : <CalendarDays size={14} strokeWidth={iconStroke} aria-hidden="true" />}{label}</span>
-      <span className={`booking-value ${!value ? 'empty' : ''}`}>{value || 'Click to add'}</span>
+    <button className={`booking-field ${multilineFields.has(field) ? 'booking-field--long' : ''}`} type="button" onClick={onEdit}>
+      <span className="booking-label">{fieldIcon(field)}{label}</span>
+      {isLink ? (
+        <span className="booking-value">
+          <a href={value} target="_blank" rel="noreferrer" onClick={(event) => event.stopPropagation()}>Open booking <ExternalLink size={12} strokeWidth={iconStroke} aria-hidden="true" /></a>
+        </span>
+      ) : (
+        <span className={`booking-value ${!value ? 'empty' : ''}`}>{value || 'Click to add'}</span>
+      )}
     </button>
   );
+}
+
+function fieldIcon(field) {
+  if (field === 'phone') return <Phone size={14} strokeWidth={iconStroke} aria-hidden="true" />;
+  if (field === 'link') return <ExternalLink size={14} strokeWidth={iconStroke} aria-hidden="true" />;
+  if (field === 'notes') return <StickyNote size={14} strokeWidth={iconStroke} aria-hidden="true" />;
+  return <CalendarDays size={14} strokeWidth={iconStroke} aria-hidden="true" />;
 }
 
 function addressPatch(booking, address, selectedPlace) {
